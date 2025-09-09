@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts - Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- CSS Styling --- */
+        :root {
+            --bg-color: #f5f6fa;
+            --sidebar-bg: #ffffff;
+            --card-bg: #ffffff;
+            --text-color-dark: #333;
+            --text-color-medium: #666;
+            --text-color-light: #888;
+            --primary-blue: #407bff;
+            --active-item-bg: #e6f0ff;
+            --border-color: #e0e0e0;
+            --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --shadow-medium: 0 8px 24px rgba(0, 0, 0, 0.08);
+
+            /* Summary Card Colors */
+            --btc-orange: #ff9f40;
+            --m-purple: #8A2BE2; /* Monero */
+            --e-blue: #407bff; /* Ethereum */
+            --l-green: #28c76f; /* Litecoin */
+
+            /* Balance Card Colors */
+            --balance-green: #28c76f;
+            --balance-blue: #407bff;
+            --balance-purple: #6a0dad; /* Darker purple for card background */
+            --balance-orange: #ff9f40;
+
+            /* Stat chart colors (Income, Spends, Installment, Invest) */
+            --stat-income: #28c76f; /* green */
+            --stat-spends: #ff9f40; /* orange */
+            --stat-installment: #407bff; /* blue */
+            --stat-invest: #ea5455; /* red/pink */
+
+            --sidebar-width: 280px; /* Define sidebar width for easier mobile toggling */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color-dark);
+            line-height: 1.6;
+            overflow-x: hidden; /* Prevent horizontal scroll when sidebar is off-screen */
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            position: relative; /* For the overlay */
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-bg);
+            padding: 30px 20px;
+            box-shadow: var(--shadow-medium);
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            transition: transform 0.3s ease; /* For mobile slide-in/out */
+        }
+
+        .sidebar .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 20px;
+        }
+
+        .sidebar::-webkit-scrollbar{
+          width: 0;
+        }
+        .sidebar .logo i.fas.fa-bolt { /* Style for the Boltz icon */
+            font-size: 30px;
+            color: var(--primary-blue);
+        }
+
+        .sidebar .logo .close-sidebar-btn {
+            display: none; /* Hidden on desktop */
+            font-size: 24px;
+            cursor: pointer;
+            margin-left: auto; /* Push to the right */
+            color: var(--text-color-dark);
+            background: none;
+            border: none;
+            padding: 0;
+            line-height: 1; /* For better vertical alignment of X icon */
+        }
+
+        .user-profile {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .user-profile img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+            border: 3px solid var(--primary-blue);
+        }
+
+        .user-profile .name {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-color-dark);
+            margin-bottom: 5px;
+        }
+
+        .user-profile .email {
+            font-size: 13px;
+            color: var(--text-color-medium);
+        }
+
+        .nav-menu ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .nav-menu ul li a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            color: var(--text-color-medium);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .nav-menu ul li a:hover {
+            background-color: var(--active-item-bg);
+            color: var(--primary-blue);
+        }
+
+        .nav-menu ul li a.active {
+            background-color: var(--primary-blue);
+            color: var(--sidebar-bg);
+            font-weight: 500;
+            box-shadow: var(--shadow-light);
+        }
+
+        .nav-menu ul li a.active i {
+            color: var(--sidebar-bg);
+        }
+
+        .nav-menu ul li a i {
+            font-size: 18px;
+            color: var(--text-color-medium);
+            transition: color 0.3s;
+        }
+        .nav-menu ul li a.active i {
+            color: var(--sidebar-bg); /* Ensure active icon color is white */
+        }
+
+        .nav-menu ul li a .text {
+            flex-grow: 1;
+        }
+
+        .nav-menu ul li a .arrow {
+            font-size: 14px;
+            color: var(--text-color-light);
+            transition: transform 0.3s ease;
+        }
+        .nav-menu ul li.has-submenu.open > a .arrow {
+            transform: rotate(90deg); /* Rotate arrow when submenu is open */
+        }
+
+        .nav-menu ul ul { /* Submenu */
+            list-style: none;
+            padding-left: 30px;
+            max-height: 0; /* Hidden by default for animation */
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .nav-menu ul li.has-submenu.open > ul {
+            max-height: 200px; /* Arbitrary large height for smooth open (adjust if needed) */
+        }
+        .nav-menu ul ul li a {
+            padding: 8px 0px 8px 15px; /* Adjust padding for submenu items */
+            font-size: 14px;
+            gap: 10px;
+            background-color: transparent;
+            color: var(--text-color-medium); /* Submenu items inherit normal text color */
+        }
+        .nav-menu ul ul li a.active {
+            background-color: var(--active-item-bg);
+            color: var(--primary-blue);
+            font-weight: 500;
+        }
+        .nav-menu ul ul li a:hover {
+            background-color: var(--active-item-bg);
+            color: var(--primary-blue);
+        }
+        .nav-menu ul ul li a i {
+            font-size: 16px;
+        }
+
+
+        .sidebar-footer {
+            margin-top: auto;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-color-light);
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        /* Main Header */
+        .main-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--card-bg);
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-light);
+            flex-wrap: wrap; /* Allows items to wrap on smaller screens */
+            gap: 15px;
+        }
+
+        .mobile-header-toggle {
+            display: none; /* Hidden on desktop, shown on mobile */
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color-dark);
+            background: none;
+            border: none;
+            padding: 0;
+            line-height: 1;
+            margin-right: 15px;
+        }
+
+
+        .search-bar {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-bar input:focus {
+            border-color: var(--primary-blue);
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-color-light);
+        }
+
+        .top-right-nav {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .top-right-nav .nav-links {
+            display: flex; /* Visible on desktop */
+            gap: 20px;
+        }
+        .top-right-nav .nav-links a {
+            color: var(--text-color-medium);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .top-right-nav .nav-links a:hover {
+            color: var(--primary-blue);
+        }
+
+        .top-right-nav .icons {
+            display: flex;
+            gap: 15px;
+            align-items: center; /* Align icons vertically */
+        }
+
+        .top-right-nav .icons .icon-wrapper {
+            position: relative;
+            background-color: var(--bg-color);
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: var(--text-color-medium);
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .top-right-nav .icons .icon-wrapper:hover {
+            background-color: var(--active-item-bg);
+            color: var(--primary-blue);
+        }
+
+        .top-right-nav .icons .icon-wrapper .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #ea5455; /* Red */
+            color: white;
+            font-size: 10px;
+            border-radius: 50%;
+            padding: 2px 5px;
+            min-width: 18px;
+            text-align: center;
+            line-height: 1;
+        }
+
+        /* Dropdown Menu Styling */
+        .dropdown-wrapper {
+            position: relative;
+            display: inline-block; /* Allows items next to it */
+            cursor: pointer;
+            z-index: 50; /* Ensure dropdowns are above other content */
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%; /* Position below the trigger */
+            right: 0; /* Align to the right of the trigger */
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow-light);
+            border-radius: 8px;
+            padding: 10px 0;
+            min-width: 180px;
+            z-index: 10; /* Above regular content but below wrapper's z-index */
+            display: none; /* Hidden by default */
+            margin-top: 10px; /* Space between trigger and dropdown */
+            list-style: none; /* Remove list styling */
+        }
+
+        .dropdown-menu.show {
+            display: block; /* Show when active */
+        }
+
+        .dropdown-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            color: var(--text-color-dark);
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: var(--active-item-bg);
+            color: var(--primary-blue);
+        }
+        .dropdown-menu a i {
+             color: var(--text-color-medium); /* Default icon color */
+             font-size: 16px;
+        }
+        .dropdown-menu a:hover i {
+             color: var(--primary-blue); /* Icon color on hover */
+        }
+
+
+        /* Specific User Dropdown */
+        .user-profile-trigger {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background-color: var(--bg-color);
+            transition: background-color 0.3s;
+        }
+        .user-profile-trigger:hover {
+            background-color: var(--active-item-bg);
+        }
+
+        .user-profile-trigger img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .user-profile-trigger span {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-color-dark);
+        }
+        .user-profile-trigger .fas.fa-chevron-down {
+            font-size: 12px;
+            color: var(--text-color-light);
+        }
+
+        /* Notification Dropdown */
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+        .notification-item:hover {
+            background-color: var(--active-item-bg);
+        }
+        .notification-item .icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: var(--primary-blue); /* Example background */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .notification-item .content {
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        .notification-item .content strong {
+            display: block;
+            margin-bottom: 2px;
+            font-weight: 500;
+        }
+        .notification-item .content span {
+            color: var(--text-color-medium);
+        }
+        .notification-dropdown {
+            right: -10px; /* Adjust if needed to align more to the bell icon */
+            min-width: 280px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .notification-dropdown .read-all {
+            display: block;
+            text-align: center;
+            padding: 10px;
+            font-size: 13px;
+            color: var(--primary-blue);
+            text-decoration: none;
+            border-top: 1px solid var(--border-color);
+        }
+        .notification-dropdown .empty-state {
+            text-align: center;
+            color: var(--text-color-light);
+            padding: 20px;
+            font-size: 14px;
+        }
+
+
+        /* Dashboard Header Section */
+        .dashboard-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .dashboard-header h2 {
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .dashboard-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .dashboard-controls .weather {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--text-color-medium);
+            padding: 8px 12px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+        }
+
+        .dashboard-controls .weather i {
+            font-size: 18px;
+            color: #ffc107; /* Yellow for sun */
+        }
+
+        .dashboard-controls .filter-button {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow-light);
+            transition: background-color 0.3s;
+        }
+
+        .dashboard-controls .filter-button:hover {
+            background-color: #3367d6; /* Slightly darker blue */
+        }
+
+        /* Summary Cards Grid */
+        .summary-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .summary-card {
+            background-color: var(--card-bg);
+            padding: 25px 20px; /* Increased vertical padding */
+            border-radius: 12px;
+            box-shadow: var(--shadow-light);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .summary-card .icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: white;
+            font-weight: 600; /* For 'M' and 'L' text */
+        }
+
+        .summary-card.btc .icon { background-color: var(--btc-orange); }
+        .summary-card.monero .icon { background-color: var(--m-purple); }
+        .summary-card.ethereum .icon { background-color: var(--e-blue); }
+        .summary-card.litecoin .icon { background-color: var(--l-green); }
+
+
+        .summary-card .details .value {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .summary-card .details .change {
+            font-size: 13px;
+            color: var(--text-color-medium);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .summary-card .details .change .percentage {
+            color: #28c76f; /* Green for positive change */
+            font-weight: 500;
+        }
+        .summary-card .details .change .percentage.negative {
+            color: #ea5455; /* Red for negative change */
+        }
+
+        /* Main Section Grid (Current Stats & Market Overview) */
+        .main-section-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr; /* Approx 1:2 ratio */
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            padding: 30px 25px; /* Increased vertical padding */
+            border-radius: 12px;
+            box-shadow: var(--shadow-light);
+            margin: 15px 0;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        /* Current Statistic Card */
+        .current-statistic-card {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .statistic-chart {
+            width: 180px; /* Adjust size */
+            height: 180px;
+            margin: 0 auto 20px auto; /* Center the chart */
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--stat-income) 0% 68%,
+                var(--stat-spends) 68% 78%, /* 68 + 10 = 78 */
+                var(--stat-installment) 78% 81%, /* 78 + 3 = 81 */
+                var(--stat-invest) 81% 100% /* 81 + 19 = 100 (original image has 21%, adjusted for full circle) */
+            );
+            position: relative;
+            display: flex; /* For the inner circle */
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05); /* Subtle inner shadow */
+        }
+
+        .statistic-chart::before {
+            content: '';
+            position: absolute;
+            width: 110px; /* Inner circle size */
+            height: 110px;
+            background-color: var(--card-bg);
+            border-radius: 50%;
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.05); /* Subtle outer shadow for inner circle */
+        }
+
+        .statistic-list ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .statistic-list ul li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .statistic-list ul li .label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .statistic-list ul li .label .color-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .statistic-list ul li .label span {
+            color: var(--text-color-dark);
+        }
+
+        .statistic-list ul li .value {
+            font-weight: 500;
+            color: var(--text-color-dark);
+        }
+
+        /* Market Overview Card */
+        .market-overview-card .card-header .market-overview-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+        .market-overview-card .crypto-filters {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .market-overview-card .crypto-filters label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            color: var(--text-color-medium);
+            cursor: pointer;
+        }
+
+        .market-overview-card .crypto-filters input[type="radio"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            outline: none;
+            transition: border-color 0.3s, background-color 0.3s;
+            position: relative;
+        }
+
+        .market-overview-card .crypto-filters input[type="radio"]:checked {
+            border-color: var(--primary-blue);
+        }
+
+        .market-overview-card .crypto-filters input[type="radio"]:checked::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary-blue); /* Blue dot */
+            border-radius: 50%;
+        }
+
+        .market-overview-card .time-filter select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--text-color-medium);
+            background-color: transparent;
+            cursor: pointer;
+            outline: none;
+            -webkit-appearance: none; /* Remove default arrow on select */
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23666' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 18px;
+            padding-right: 30px; /* Make space for custom arrow */
+        }
+
+        /* Line chart placeholder - Simplified representation */
+        .market-chart-placeholder {
+            width: 100%;
+            height: 250px;
+            background: linear-gradient(to top, var(--card-bg) 0%, var(--card-bg) 20%, #e0e0e0 20.5%, #e0e0e0 21%, var(--card-bg) 21.5%, var(--card-bg) 40%, #e0e0e0 40.5%, #e0e0e0 41%, var(--card-bg) 41.5%, var(--card-bg) 60%, #e0e0e0 60.5%, #e0e0e0 61%, var(--card-bg) 61.5%, var(--card-bg) 80%, #e0e0e0 80.5%, #e0e0e0 81%, var(--card-bg) 81.5%, var(--card-bg) 100%);
+            background-size: 100% 25%; /* To create horizontal grid lines */
+            background-position: 0 100%;
+            display: block;
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+
+        /* Fake lines using inline SVG in background-image */
+        .market-chart-placeholder .line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .market-chart-placeholder .line.blue {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><path d="M0,80 C100,50 200,100 300,70 C400,30 500,90 600,60 C700,110 800,40 900,90 C1000,60" fill="none" stroke="%23407bff" stroke-width="3" stroke-linecap="round"/></svg>');
+        }
+        .market-chart-placeholder .line.orange {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><path d="M0,100 C100,120 200,70 300,110 C400,140 500,80 600,130 C700,90 800,150 900,100 C1000,120" fill="none" stroke="%23ff9f40" stroke-width="3" stroke-linecap="round"/></svg>');
+        }
+
+        .market-chart-placeholder .tooltip {
+            position: absolute;
+            top: 50%; /* Adjust as needed for specific point */
+            left: 70%; /* Adjust as needed for specific point */
+            background-color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-light);
+            font-size: 13px;
+            white-space: nowrap;
+            transform: translate(-50%, -120%); /* Move up from the point */
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            align-items: center;
+        }
+        .market-chart-placeholder .tooltip .value {
+            font-weight: 600;
+            color: var(--text-color-dark);
+        }
+        .market-chart-placeholder .tooltip .date {
+            color: var(--text-color-medium);
+            font-size: 12px;
+        }
+        .market-chart-placeholder .tooltip .dot {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--primary-blue); /* Match line color */
+            border-radius: 50%;
+            bottom: -5px; /* Position at the bottom of the tooltip */
+            left: 50%;
+            transform: translateX(-50%);
+            border: 2px solid white;
+        }
+
+        .market-chart-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--text-color-light);
+        }
+        .market-chart-footer span {
+            width: calc(100% / 10); /* Divide by number of labels for equal spacing */
+            text-align: center;
+        }
+        .market-chart-footer span:first-child { text-align: left; }
+        .market-chart-footer span:last-child { text-align: right; }
+
+        /* Balance Cards Grid */
+        .balance-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .balance-card {
+            padding: 25px 20px; /* Increased vertical padding */
+            border-radius: 12px;
+            color: white; /* All text white on these cards */
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-light);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 150px;
+        }
+
+        .balance-card::before,
+        .balance-card::after {
+            content: '';
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            z-index: 0;
+        }
+        .balance-card::before {
+            width: 120px;
+            height: 120px;
+            top: -30px;
+            right: -30px;
+        }
+        .balance-card::after {
+            width: 80px;
+            height: 80px;
+            bottom: -20px;
+            left: -20px;
+            opacity: 0.7;
+        }
+
+        .balance-card.green { background-color: var(--balance-green); }
+        .balance-card.blue { background-color: var(--balance-blue); }
+        .balance-card.purple { background-color: var(--balance-purple); }
+        .balance-card.orange { background-color: var(--balance-orange); }
+
+        .balance-card .card-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .balance-card .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .balance-card .header .card-icon {
+            font-size: 24px;
+        }
+
+
+        .balance-card .main-balance {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .balance-card .footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        /* Bottom Section Grid (Recent Activities, Sell Order, Buy Order) */
+        .bottom-section-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        /* Recent Activities Card */
+        .recent-activities-card .card-header .tabs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .recent-activities-card .card-header .tabs button {
+            background-color: transparent;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--text-color-medium);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .recent-activities-card .card-header .tabs button.active {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+        .recent-activities-card .card-header .tabs button:not(.active):hover {
+            background-color: var(--bg-color);
+        }
+
+        .activity-list {
+            margin-top: 15px;
+        }
+        .activity-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-item .left-col {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .activity-item .icon-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: white;
+            font-weight: 600;
+        }
+        .activity-item .icon-box.bitcoin { background-color: var(--btc-orange); }
+        .activity-item .icon-box.ethereum { background-color: var(--e-blue); }
+
+
+        .activity-item .details .name {
+            font-weight: 500;
+        }
+        .activity-item .details .time {
+            font-size: 12px;
+            color: var(--text-color-light);
+        }
+
+        .activity-item .right-col {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 3px;
+        }
+
+        .activity-item .right-col .amount {
+            font-weight: 500;
+            color: #28c76f; /* Green for positive */
+        }
+        .activity-item .right-col .amount.negative {
+            color: #ea5455; /* Red for negative */
+        }
+
+        .activity-item .right-col .status {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 5px;
+            color: white;
+            font-weight: 500;
+        }
+        .activity-item .right-col .status.completed { background-color: #28c76f; }
+        .activity-item .right-col .status.pending { background-color: #ffc107; }
+        .activity-item .right-col .status.failed { background-color: #ea5455; }
+
+
+        /* Sell/Buy Order Cards */
+        .order-card .card-header {
+            margin-bottom: 15px;
+        }
+        .order-card .card-header .dropdown-select {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-color-dark);
+        }
+        .order-card .card-header .dropdown-select i {
+            color: var(--text-color-light);
+        }
+        .order-card .card-header .dropdown-select .crypto-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .order-card .card-header .dropdown-select .crypto-icon.litecoin { background-color: var(--l-green); }
+        .order-card .card-header .dropdown-select .crypto-icon.monero { background-color: var(--m-purple); }
+
+
+        .order-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .order-table th, .order-table td {
+            padding: 10px 0;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        .order-table th {
+            color: var(--text-color-light);
+            font-weight: 400;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .order-table td {
+            color: var(--text-color-dark);
+            font-weight: 500;
+        }
+        .order-table tbody tr:not(:last-child) td {
+            border-bottom: 1px dashed var(--border-color);
+        }
+        .order-table .price { color: #ea5455; } /* Red for Sell */
+        .order-table.buy-order .price { color: #28c76f; } /* Green for Buy */
+
+
+        /* --- Mobile Responsiveness --- */
+        .overlay {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 90; /* Below sidebar, above main content */
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        @media (max-width: 992px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: 0;
+                transform: translateX(-100%); /* Hide sidebar off-screen initially */
+                height: 100vh;
+                width: var(--sidebar-width);
+                padding-top: 20px;
+                box-shadow: var(--shadow-medium);
+                top: 0;
+                z-index: 101; /* Ensure it's above overlay */
+            }
+            .sidebar.open {
+                transform: translateX(0); /* Slide in */
+            }
+
+            .sidebar .logo {
+                justify-content: space-between;
+                margin-bottom: 15px;
+            }
+            .sidebar .logo .close-sidebar-btn {
+                display: block; /* Show close icon */
+            }
+
+            .user-profile {
+                border-bottom: none;
+                padding-bottom: 0;
+                margin-bottom: 15px;
+            }
+            .user-profile img { width: 70px; height: 70px; }
+            .user-profile .name { font-size: 17px; }
+            .user-profile .email { font-size: 12px; }
+
+            .nav-menu ul {
+                overflow-x: hidden; /* Prevent horizontal scroll for the nav list itself on mobile */
+                flex-direction: column; /* Stack nav items vertically on mobile */
+                border-bottom: none; /* Remove horizontal border from desktop */
+                padding-top: 0;
+                gap: 5px;
+            }
+
+            .nav-menu ul li a {
+                padding: 10px 15px;
+                font-size: 14px;
+                gap: 12px;
+            }
+            /* Show text for all nav items on mobile sidebar, but icons are primary */
+            .nav-menu ul li a .text { display: block; }
+            .nav-menu ul li a .arrow { display: block; } /* Show arrow for submenu on mobile */
+
+            .sidebar-footer {
+                padding-top: 15px;
+            }
+
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .main-header {
+                flex-direction: row; /* Keep header items horizontal on mobile where possible */
+                justify-content: flex-start; /* Align to start when mobile toggle is present */
+                align-items: center; /* Vertically align items */
+                gap: 15px; /* Adjust gap */
+            }
+            .mobile-header-toggle {
+                display: flex; /* Show hamburger icon */
+                align-items: center;
+                justify-content: center;
+                width: 38px;
+                height: 38px;
+                background-color: var(--bg-color); /* Match icon-wrapper style */
+                border-radius: 50%;
+                font-size: 18px;
+            }
+
+            .search-bar {
+                max-width: none; /* Allow search bar to take available width */
+                flex-grow: 1; /* Allow it to grow */
+            }
+            .top-right-nav {
+                width: auto; /* Allow auto width for icons */
+                justify-content: flex-end; /* Push icons to the right */
+                flex-grow: 0; /* Don't force growth */
+                gap: 10px; /* Adjust gap for mobile top icons */
+            }
+            .top-right-nav .nav-links,
+            .top-right-nav .notification-dropdown-wrapper, /* Hide dropdowns on mobile */
+            .top-right-nav .user-dropdown-wrapper {
+                display: none;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .dashboard-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .summary-cards-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* 2 columns for summary cards */
+            }
+            .summary-card {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+                padding: 20px 15px; /* Adjust padding for smaller cards */
+            }
+            .summary-card .details .value { font-size: 20px; }
+            .summary-card .details .change { font-size: 12px; }
+
+            .balance-cards-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* 2 columns for balance cards */
+            }
+            .balance-card .main-balance { font-size: 24px; }
+            .balance-card .header, .balance-card .footer { font-size: 12px; }
+
+            .bottom-section-grid {
+                grid-template-columns: 1fr; /* Stack all bottom cards */
+            }
+            .market-overview-card .crypto-filters {
+                justify-content: center;
+            }
+
+            .main-section-grid {
+                grid-template-columns: 1fr; /* Stack stats and overview */
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar { width: 250px; } /* Slightly narrower sidebar on very small screens */
+            .sidebar .logo { font-size: 20px; }
+            .sidebar .logo i.fas.fa-bolt { font-size: 24px; }
+            .user-profile img { width: 60px; height: 60px; }
+            .user-profile .name { font-size: 16px; }
+            .user-profile .email { font-size: 12px; }
+            .nav-menu ul li a { padding: 8px 12px; }
+
+            .main-content { padding: 15px; }
+            .main-header { padding: 10px 15px; }
+            .mobile-header-toggle { width: 34px; height: 34px; font-size: 16px; margin-right: 10px; }
+            .search-bar input { padding: 8px 12px 8px 35px; font-size: 13px; }
+            .search-bar i { left: 12px; font-size: 14px; }
+            .top-right-nav .icons .icon-wrapper { width: 34px; height: 34px; font-size: 14px; }
+            .top-right-nav .icons .icon-wrapper .badge { font-size: 9px; padding: 1px 4px; min-width: 16px; }
+
+            .dashboard-header h2 { font-size: 24px; }
+            .dashboard-controls .weather { font-size: 13px; padding: 6px 10px; }
+            .dashboard-controls .weather i { font-size: 16px; }
+            .dashboard-controls .filter-button { padding: 8px 15px; font-size: 13px; }
+
+            .summary-cards-grid {
+                grid-template-columns: 1fr; /* Stack summary cards to 1 column */
+            }
+            .summary-card .details .value { font-size: 18px; }
+            .summary-card .icon { width: 40px; height: 40px; font-size: 18px; }
+
+            .card { padding: 25px 20px; } /* Adjust padding for smaller cards */
+            .card-header h3 { font-size: 16px; }
+
+            .statistic-list ul li { font-size: 13px; }
+            .market-overview-card .crypto-filters label { font-size: 13px; }
+            .market-chart-footer span { font-size: 10px; }
+
+            .balance-cards-grid {
+                grid-template-columns: 1fr; /* Stack balance cards to 1 column */
+            }
+            .balance-card .main-balance { font-size: 22px; }
+
+            .recent-activities-card .card-header .tabs button { font-size: 12px; padding: 6px 10px; }
+            .activity-item .left-col { gap: 10px; }
+            .activity-item .icon-box { width: 35px; height: 35px; font-size: 14px; }
+            .activity-item .details .name { font-size: 14px; }
+            .activity-item .details .time { font-size: 11px; }
+            .activity-item .right-col .amount { font-size: 14px; }
+            .activity-item .right-col .status { font-size: 11px; padding: 3px 6px; }
+
+            .order-card .card-header .dropdown-select { font-size: 13px; padding: 6px 10px; }
+            .order-table th, .order-table td { font-size: 12px; padding: 8px 0; }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-bolt"></i> Jai
+                <button class="close-sidebar-btn"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="#" class="active"><i class="fas fa-th-large"></i> <span class="text">Dashboard</span></a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="fas fa-wallet"></i> <span class="text">My Wallet</span> <i class="fas fa-chevron-right arrow"></i></a>
+                        <ul>
+                            <li><a href="#">Add New</a></li>
+                            <li><a href="#">Card List</a></li>
+                            <li><a href="#">History</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#"><i class="fas fa-exchange-alt"></i> <span class="text">Transaction</span> <i class="fas fa-chevron-right arrow"></i></a></li>
+                    <li><a href="#"><i class="fab fa-bitcoin"></i> <span class="text">Crypto</span> <i class="fas fa-chevron-right arrow"></i></a></li>
+                    <li><a href="#"><i class="fas fa-chart-line"></i> <span class="text">Exchange</span> <i class="fas fa-chevron-right arrow"></i></a></li>
+                    <li><a href="#"><i class="fas fa-cog"></i> <span class="text">Settings</span> <i class="fas fa-chevron-right arrow"></i></a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                © 2025 All Rights Reserved <br>
+                Made with ❤️ by Jai
+            </div>
+        </aside>
+
+        <div class="overlay"></div> <!-- Overlay for mobile sidebar -->
+
+        <main class="main-content">
+            <header class="main-header">
+                <button class="mobile-header-toggle"><i class="fas fa-bars"></i></button>
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Find  here...">
+                </div>
+                <div class="top-right-nav">
+                    <div class="icons">
+                        <!-- Notification Dropdown -->
+                        <div class="dropdown-wrapper" id="notificationDropdownWrapper">
+                            <div class="icon-wrapper" id="notificationIcon">
+                                <i class="fas fa-bell"></i>
+                                <span class="badge">12</span>
+                            </div>
+                            <ul class="dropdown-menu" id="notificationDropdown">
+                                <div class="empty-state">No new notifications</div>
+                                <!-- Example Notification Item (uncomment to test) -->
+                                <li class="notification-item">
+                                    <div class="icon" style="background-color: #28c76f;"><i class="fas fa-check"></i></div>
+                                    <div class="content">
+                                        <strong>Trade Completed</strong>
+                                        <span>Your recent BTC trade was successful.</span>
+                                    </div>
+                                </li>
+                                <li class="notification-item">
+                                    <div class="icon" style="background-color: #ff9f40;"><i class="fas fa-exclamation-triangle"></i></div>
+                                    <div class="content">
+                                        <strong>Price Alert!</strong>
+                                        <span>ETH price reached your target.</span>
+                                    </div>
+                                </li>
+                                <a href="#" class="read-all">Read All Notifications</a>
+                            </ul>
+                        </div>
+
+                        <!-- <div class="icon-wrapper"><i class="fas fa-envelope"></i><span class="badge">9</span></div> -->
+                        <!-- <div class="icon-wrapper"><i class="fas fa-comment-dots"></i><span class="badge">24</span></div> -->
+                        <!-- User Profile Dropdown -->
+                        <div class="dropdown-wrapper" id="userDropdownWrapper">
+                            <div class="user-profile-trigger" id="userProfileTrigger">
+                                <img src="https://via.placeholder.com/150/407bff/FFFFFF?text=W" alt="William">
+                                <span>William</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <ul class="dropdown-menu" id="userDropdown">
+                                <li><a href="#"><i class="fas fa-user-circle"></i> Profile</a></li>
+                                <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                                <li><a href="#"><i class="fas fa-question-circle"></i> Help</a></li>
+                                <li><a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <section class="dashboard-body">
+                <div class="dashboard-header">
+                    <h2>Dashboard</h2>
+                    <div class="dashboard-controls">
+                        <div class="weather">
+                            <i class="fas fa-cloud-sun"></i> 21° Medan, IDN <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <a href="#" class="filter-button"><i class="fas fa-filter"></i> Filter Periode</a>
+                    </div>
+                </div>
+
+                <div class="summary-cards-grid">
+                    <div class="summary-card btc">
+                        <div class="icon"><i class="fab fa-bitcoin"></i></div>
+                        <div class="details">
+                            <div class="value">$984</div>
+                            <div class="change"><span class="percentage positive">+45%</span> This week</div>
+                        </div>
+                    </div>
+                    <div class="summary-card monero">
+                        <div class="icon">M</div>
+                        <div class="details">
+                            <div class="value">$22,567</div>
+                            <div class="change"><span class="percentage negative">-45%</span> This week</div>
+                        </div>
+                    </div>
+                    <div class="summary-card ethereum">
+                        <div class="icon"><i class="fab fa-ethereum"></i></div>
+                        <div class="details">
+                            <div class="value">$168,331.09</div>
+                            <div class="change"><span class="percentage positive">+45%</span> This week</div>
+                        </div>
+                    </div>
+                    <div class="summary-card litecoin">
+                        <div class="icon">L</div>
+                        <div class="details">
+                            <div class="value">$7,784</div>
+                            <div class="change"><span class="percentage negative">-45%</span> This week</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="main-section-grid">
+                    <div class="card current-statistic-card">
+                        <div class="card-header">
+                            <h3>Current Statistic</h3>
+                        </div>
+                        <div class="statistic-chart">
+                            <!-- Conic gradient creates the donut chart segments -->
+                        </div>
+                        <div class="statistic-list">
+                            <ul>
+                                <li>
+                                    <div class="label"><span class="color-dot" style="background-color: var(--stat-income);"></span> <span>Income (68%)</span></div>
+                                    <div class="value">$187,884.21</div>
+                                </li>
+                                <li>
+                                    <div class="label"><span class="color-dot" style="background-color: var(--stat-spends);"></span> <span>Spends (10%)</span></div>
+                                    <div class="value">$56,411.33</div>
+                                </li>
+                                <li>
+                                    <div class="label"><span class="color-dot" style="background-color: var(--stat-installment);"></span> <span>Installment (3%)</span></div>
+                                    <div class="value">$81,981.22</div>
+                                </li>
+                                <li>
+                                    <div class="label"><span class="color-dot" style="background-color: var(--stat-invest);"></span> <span>Invest (21%)</span></div>
+                                    <div class="value">$12,432.51</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card market-overview-card">
+                        <div class="card-header">
+                            <h3>Market Overview</h3>
+                            <div class="market-overview-controls">
+                                <div class="crypto-filters">
+                                    <label><input type="radio" name="crypto" value="ETH" checked> ETH</label>
+                                    <label><input type="radio" name="crypto" value="XMR"> XMR</label>
+                                    <label><input type="radio" name="crypto" value="LTC"> LTC</label>
+                                    <label><input type="radio" name="crypto" value="XMR"> XMR</label> <!-- Duplicated in image -->
+                                </div>
+                                <div class="time-filter">
+                                    <select>
+                                        <option>Weekly (2020)</option>
+                                        <option>Monthly (2020)</option>
+                                        <option>Yearly (2020)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="market-chart-placeholder">
+                            <div class="line blue"></div>
+                            <div class="line orange"></div>
+                            <div class="tooltip">
+                                <span class="value">$74B</span>
+                                <span class="date">3 July 2020</span>
+                                <div class="dot"></div>
+                            </div>
+                        </div>
+                        <div class="market-chart-footer">
+                            <span>Week 01</span>
+                            <span>Week 02</span>
+                            <span>Week 03</span>
+                            <span>Week 04</span>
+                            <span>Week 05</span>
+                            <span>Week 06</span>
+                            <span>Week 07</span>
+                            <span>Week 08</span>
+                            <span>Week 09</span>
+                            <span>Week 10</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="balance-cards-grid">
+                    <div class="balance-card green">
+                        <div class="card-content">
+                            <div class="header">
+                                <span>Main Balance</span>
+                                <span class="card-icon"><i class="far fa-credit-card"></i></span>
+                            </div>
+                            <div class="main-balance">$22,466.24</div>
+                            <div class="footer">
+                                <span>VALID THRU 08/21</span>
+                                <span>CARD HOLDER William Fancyson</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="balance-card blue">
+                        <div class="card-content">
+                            <div class="header">
+                                <span>Main Balance</span>
+                                <span class="card-icon"><i class="far fa-credit-card"></i></span>
+                            </div>
+                            <div class="main-balance">$67,876.32</div>
+                            <div class="footer">
+                                <span>VALID THRU 08/21</span>
+                                <span>CARD HOLDER William Fancyson</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="balance-card purple">
+                        <div class="card-content">
+                            <div class="header">
+                                <span>Main Balance</span>
+                                <span class="card-icon"><i class="fab fa-bitcoin"></i></span>
+                            </div>
+                            <div class="main-balance">$240.56</div>
+                            <div class="footer">
+                                <span>VALID THRU 08/21</span>
+                                <span>CARD HOLDER William Fancyson</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="balance-card orange">
+                        <div class="card-content">
+                            <div class="header">
+                                <span>Main Balance</span>
+                                <span class="card-icon"><i class="far fa-credit-card"></i></span>
+                            </div>
+                            <div class="main-balance">$6,786.25</div>
+                            <div class="footer">
+                                <span>VALID THRU 08/21</span>
+                                <span>CARD HOLDER William Fancyson</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bottom-section-grid">
+                    <div class="card recent-activities-card">
+                        <div class="card-header">
+                            <h3>Recent Trading Activities</h3>
+                            <div class="tabs">
+                                <button>Monthly</button>
+                                <button>Weekly</button>
+                                <button class="active">Today</button>
+                            </div>
+                        </div>
+                        <div class="activity-list">
+                            <div class="activity-item">
+                                <div class="left-col">
+                                    <div class="icon-box bitcoin"><i class="fab fa-bitcoin"></i></div>
+                                    <div class="details">
+                                        <div class="name">Bitcoin</div>
+                                        <div class="time">06:24:45 AM</div>
+                                    </div>
+                                </div>
+                                <div class="right-col">
+                                    <div class="amount">+$,553</div>
+                                    <div class="status completed">Completed</div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="left-col">
+                                    <div class="icon-box ethereum"><i class="fab fa-ethereum"></i></div>
+                                    <div class="details">
+                                        <div class="name">Ethereum</div>
+                                        <div class="time">06:24:45 AM</div>
+                                    </div>
+                                </div>
+                                <div class="right-col">
+                                    <div class="amount negative">-$683</div>
+                                    <div class="status pending">Pending</div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="left-col">
+                                    <div class="icon-box bitcoin"><i class="fab fa-bitcoin"></i></div>
+                                    <div class="details">
+                                        <div class="name">Bitcoin</div>
+                                        <div class="time">06:24:45 AM</div>
+                                    </div>
+                                </div>
+                                <div class="right-col">
+                                    <div class="amount">+$,553</div>
+                                    <div class="status completed">Completed</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card order-card sell-order-card">
+                        <div class="card-header">
+                            <h3>Sell Order</h3>
+                            <div class="dropdown-select">
+                                <div class="crypto-icon litecoin">L</div>
+                                <span>Litecoin</span>
+                                <i class="fas fa-chevron-down" style="margin-left: auto;"></i>
+                            </div>
+                        </div>
+                        <table class="order-table">
+                            <thead>
+                                <tr>
+                                    <th>Price</th>
+                                    <th>Amount</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="price">400.00</td>
+                                    <td>0.002 BTC</td>
+                                    <td>800.00</td>
+                                </tr>
+                                <tr>
+                                    <td class="price">400.00</td>
+                                    <td>0.002 BTC</td>
+                                    <td>800.00</td>
+                                </tr>
+                                <tr>
+                                    <td class="price">400.00</td>
+                                    <td>0.002 BTC</td>
+                                    <td>800.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="card order-card buy-order-card">
+                        <div class="card-header">
+                            <h3>Buy Order</h3>
+                            <div class="dropdown-select">
+                                <div class="crypto-icon monero">M</div>
+                                <span>Monero</span>
+                                <i class="fas fa-chevron-down" style="margin-left: auto;"></i>
+                            </div>
+                        </div>
+                        <table class="order-table buy-order">
+                            <thead>
+                                <tr>
+                                    <th>Price</th>
+                                    <th>Amount</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="price">400.00</td>
+                                    <td>0.002 BTC</td>
+                                    <td>800.00</td>
+                                </tr>
+                                <tr>
+                                    <td class="price">400.00</td>
+                                    <td>0.002 BTC</td>
+                                    <td>800.00</td>
+                                </tr>
+                                <tr>
+                                    <td class="price">400.00</td>
+                                    <td>0.002 BTC</td>
+                                    <td>800.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Submenu Toggle & Smooth Scroll ---
+            const submenuParents = document.querySelectorAll('.nav-menu ul li.has-submenu > a');
+
+            submenuParents.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault(); // Prevent default link behavior
+                    const parentLi = this.closest('li.has-submenu');
+                    const submenu = parentLi.querySelector('ul');
+
+                    if (parentLi.classList.contains('open')) {
+                        // Close submenu
+                        submenu.style.maxHeight = '0';
+                        parentLi.classList.remove('open');
+                    } else {
+                        // Close other open submenus first (optional, but good UX)
+                        document.querySelectorAll('.nav-menu ul li.has-submenu.open').forEach(openParent => {
+                            if (openParent !== parentLi) {
+                                openParent.classList.remove('open');
+                                openParent.querySelector('ul').style.maxHeight = '0';
+                            }
+                        });
+
+                        // Open current submenu
+                        parentLi.classList.add('open');
+                        // Use scrollHeight to get the full height of the content
+                        submenu.style.maxHeight = submenu.scrollHeight + 'px'; 
+
+                        // Smooth scroll into view if necessary (especially on mobile)
+                        if (window.innerWidth < 992) {
+                            setTimeout(() => { // Give a small delay for max-height to apply
+                                parentLi.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            }, 300); // Match CSS transition duration
+                        }
+                    }
+                });
+            });
+
+            // --- Mobile Sidebar Toggle ---
+            const sidebar = document.querySelector('.sidebar');
+            const mobileHeaderToggle = document.querySelector('.mobile-header-toggle'); // Button in main header
+            const closeSidebarBtn = document.querySelector('.close-sidebar-btn');     // Button inside sidebar
+            const overlay = document.querySelector('.overlay');
+
+            const toggleSidebar = () => {
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('active');
+            };
+
+            mobileHeaderToggle.addEventListener('click', toggleSidebar);
+            closeSidebarBtn.addEventListener('click', toggleSidebar);
+            overlay.addEventListener('click', toggleSidebar);
+
+            // Function to close sidebar on screen resize if it becomes desktop size again
+            const handleResize = () => {
+                if (window.innerWidth >= 992) {
+                    sidebar.classList.remove('open');
+                    overlay.classList.remove('active');
+                    // Reset max-height for all submenus when switching to desktop view
+                    document.querySelectorAll('.nav-menu ul li.has-submenu.open').forEach(openParent => {
+                        openParent.classList.remove('open');
+                        openParent.querySelector('ul').style.maxHeight = '0';
+                    });
+                }
+            };
+            window.addEventListener('resize', handleResize);
+            // Initial check in case it loads on a mobile size
+            handleResize();
+
+            // --- Desktop Header Dropdowns (User and Notifications) ---
+            const notificationIcon = document.getElementById('notificationIcon');
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            const userProfileTrigger = document.getElementById('userProfileTrigger');
+            const userDropdown = document.getElementById('userDropdown');
+
+            function closeAllDropdowns(exceptDropdown = null) {
+                const openDropdowns = document.querySelectorAll('.dropdown-menu.show');
+                openDropdowns.forEach(dropdown => {
+                    if (dropdown !== exceptDropdown) {
+                        dropdown.classList.remove('show');
+                    }
+                });
+            }
+
+            function toggleDropdown(dropdownElement, event) {
+                event.stopPropagation(); // Prevent document click from immediately closing it
+                const isShowing = dropdownElement.classList.contains('show');
+                closeAllDropdowns(dropdownElement); // Close others
+                if (!isShowing) {
+                    dropdownElement.classList.add('show'); // Open target dropdown
+                }
+            }
+
+            // Event listener for Notification icon
+            if (notificationIcon) {
+                notificationIcon.addEventListener('click', (event) => toggleDropdown(notificationDropdown, event));
+            }
+
+            // Event listener for User Profile icon
+            if (userProfileTrigger) {
+                userProfileTrigger.addEventListener('click', (event) => toggleDropdown(userDropdown, event));
+            }
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', (event) => {
+                // Check if the click occurred inside any dropdown menu or its trigger
+                const clickedInsideNotification = notificationDropdownWrapper.contains(event.target);
+                const clickedInsideUser = userDropdownWrapper.contains(event.target);
+
+                if (!clickedInsideNotification && !clickedInsideUser) {
+                    closeAllDropdowns();
+                }
+            });
+
+            // Prevent dropdowns from closing when clicking inside them
+            if (notificationDropdown) {
+                notificationDropdown.addEventListener('click', (event) => event.stopPropagation());
+            }
+            if (userDropdown) {
+                userDropdown.addEventListener('click', (event) => event.stopPropagation());
+            }
+        });
+    </script>
+</body>
+</html>
