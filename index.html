@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1200,7 +1201,7 @@
 
             .main-header {
                 flex-direction: row; /* Keep header items horizontal on mobile where possible */
-                justify-content: flex-start; /* Align to start when mobile toggle is present */
+                justify-content: space-between; /* Align to start when mobile toggle is present */
                 align-items: center; /* Vertically align items */
                 gap: 15px; /* Adjust gap */
             }
@@ -1218,6 +1219,7 @@
             .search-bar {
                 max-width: none; /* Allow search bar to take available width */
                 flex-grow: 1; /* Allow it to grow */
+                display: none;
             }
             .top-right-nav {
                 width: auto; /* Allow auto width for icons */
@@ -1398,7 +1400,7 @@
                         <!-- User Profile Dropdown -->
                         <div class="dropdown-wrapper" id="userDropdownWrapper">
                             <div class="user-profile-trigger" id="userProfileTrigger">
-                                <img src="https://via.placeholder.com/150/407bff/FFFFFF?text=W" alt="William">
+                                <img src="https://jaiinfo.tech/logo/logo_only.png" alt="William">
                                 <span>William</span>
                                 <i class="fas fa-chevron-down"></i>
                             </div>
@@ -1414,7 +1416,7 @@
             </header>
 
             <section class="dashboard-body">
-                <div class="dashboard-header">
+                    <div class="dashboard-header">
                     <h2>Dashboard</h2>
                     <div class="dashboard-controls">
                         <div class="weather">
@@ -1424,33 +1426,57 @@
                     </div>
                 </div>
 
-                <div class="summary-cards-grid">
-                    <div class="summary-card btc">
-                        <div class="icon"><i class="fab fa-bitcoin"></i></div>
-                        <div class="details">
-                            <div class="value">$984</div>
-                            <div class="change"><span class="percentage positive">+45%</span> This week</div>
+                <div class="balance-cards-grid">
+                    <div class="balance-card green">
+                        <div class="card-content">
+                            <div class="header">
+                                <span>Main Balance</span>
+                                <span class="card-icon"><i class="far fa-credit-card"></i></span>
+                            </div>
+                            <div class="main-balance">$22,466.24</div>
+                            <div class="footer">
+                                <span>VALID THRU 08/21</span>
+                                <span>CARD HOLDER William Fancyson</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="summary-card monero">
-                        <div class="icon">M</div>
-                        <div class="details">
-                            <div class="value">$22,567</div>
-                            <div class="change"><span class="percentage negative">-45%</span> This week</div>
+                    <div class="balance-card blue">
+                        <div class="card-content">
+                            <div class="header">
+                                <span>Main Balance</span>
+                                <span class="card-icon"><i class="far fa-credit-card"></i></span>
+                            </div>
+                            <div class="main-balance">$67,876.32</div>
+                            <div class="footer">
+                                <span>VALID THRU 08/21</span>
+                                <span>CARD HOLDER William Fancyson</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="summary-card ethereum">
-                        <div class="icon"><i class="fab fa-ethereum"></i></div>
-                        <div class="details">
-                            <div class="value">$168,331.09</div>
-                            <div class="change"><span class="percentage positive">+45%</span> This week</div>
+                    <div class="balance-card purple">
+                        <div class="card-content">
+                            <div class="header">
+                                <span>Main Balance</span>
+                                <span class="card-icon"><i class="fab fa-bitcoin"></i></span>
+                            </div>
+                            <div class="main-balance">$240.56</div>
+                            <div class="footer">
+                                <span>VALID THRU 08/21</span>
+                                <span>CARD HOLDER William Fancyson</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="summary-card litecoin">
-                        <div class="icon">L</div>
-                        <div class="details">
-                            <div class="value">$7,784</div>
-                            <div class="change"><span class="percentage negative">-45%</span> This week</div>
+                    <div class="balance-card orange">
+                        <div class="card-content">
+                            <div class="header">
+                                <span>Main Balance</span>
+                                <span class="card-icon"><i class="far fa-credit-card"></i></span>
+                            </div>
+                            <div class="main-balance">$6,786.25</div>
+                            <div class="footer">
+                                <span>VALID THRU 08/21</span>
+                                <span>CARD HOLDER William Fancyson</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1528,60 +1554,6 @@
                     </div>
                 </div>
 
-                <div class="balance-cards-grid">
-                    <div class="balance-card green">
-                        <div class="card-content">
-                            <div class="header">
-                                <span>Main Balance</span>
-                                <span class="card-icon"><i class="far fa-credit-card"></i></span>
-                            </div>
-                            <div class="main-balance">$22,466.24</div>
-                            <div class="footer">
-                                <span>VALID THRU 08/21</span>
-                                <span>CARD HOLDER William Fancyson</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="balance-card blue">
-                        <div class="card-content">
-                            <div class="header">
-                                <span>Main Balance</span>
-                                <span class="card-icon"><i class="far fa-credit-card"></i></span>
-                            </div>
-                            <div class="main-balance">$67,876.32</div>
-                            <div class="footer">
-                                <span>VALID THRU 08/21</span>
-                                <span>CARD HOLDER William Fancyson</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="balance-card purple">
-                        <div class="card-content">
-                            <div class="header">
-                                <span>Main Balance</span>
-                                <span class="card-icon"><i class="fab fa-bitcoin"></i></span>
-                            </div>
-                            <div class="main-balance">$240.56</div>
-                            <div class="footer">
-                                <span>VALID THRU 08/21</span>
-                                <span>CARD HOLDER William Fancyson</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="balance-card orange">
-                        <div class="card-content">
-                            <div class="header">
-                                <span>Main Balance</span>
-                                <span class="card-icon"><i class="far fa-credit-card"></i></span>
-                            </div>
-                            <div class="main-balance">$6,786.25</div>
-                            <div class="footer">
-                                <span>VALID THRU 08/21</span>
-                                <span>CARD HOLDER William Fancyson</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="bottom-section-grid">
                     <div class="card recent-activities-card">
@@ -1704,7 +1676,7 @@
                                 <tr>
                                     <td class="price">400.00</td>
                                     <td>0.002 BTC</td>
-                                    <td>800.00</td>
+                                    <d>800.00</td>
                                 </tr>
                             </tbody>
                         </table>
